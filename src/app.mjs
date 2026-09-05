@@ -22,6 +22,7 @@ function slug(value) { return String(value || 'cover-foundry').toLowerCase().rep
 function download(blob, filename) { const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = filename; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
 function notify(message, type = 'error', duration = 6000) { clearTimeout(noticeTimer); controls.notice.textContent = message; controls.notice.className = `notice active ${type}`; if (duration) noticeTimer = setTimeout(() => { controls.notice.textContent = ''; controls.notice.className = 'notice'; }, duration); }
 function currentFont() { return controls.customFont.value.trim() || project.fontFamily; }
+function hasSavedProject() { try { return Boolean(localStorage.getItem(STORAGE_KEY)); } catch { return false; } }
 
 function commit(next, record = true) {
   const normalized = normalizeProject({ ...project, ...next, fontFamily: next.fontFamily ?? project.fontFamily });
@@ -68,7 +69,7 @@ function renderStatus() {
   controls.fontState.textContent = customFont ? (fontReady ? 'font detected' : 'missing font') : 'system font'; controls.fontState.className = `state-chip ${fontReady ? 'ok' : 'warn'}`;
   controls.fontWarning.textContent = fontReady ? '' : `“${customFont}” is not detected on this device. SVG keeps the family name; PNG will use the browser fallback.`; controls.fontWarning.classList.toggle('hidden', fontReady);
   const dirty = !savedFingerprint || projectFingerprint(project) !== savedFingerprint;
-  controls.dirty.textContent = dirty ? 'Unsaved changes' : 'Saved locally'; controls.dirty.style.color = dirty ? 'var(--accent-dark)' : '#467243'; controls.savedState.textContent = dirty ? 'Editing' : 'Saved just now'; controls.historyButton.disabled = history.length === 0; controls.loadSaved.disabled = !localStorage.getItem(STORAGE_KEY);
+  controls.dirty.textContent = dirty ? 'Unsaved changes' : 'Saved locally'; controls.dirty.style.color = dirty ? 'var(--accent-dark)' : '#467243'; controls.savedState.textContent = dirty ? 'Editing' : 'Saved just now'; controls.historyButton.disabled = history.length === 0; controls.loadSaved.disabled = !hasSavedProject();
 }
 
 function renderPreview() {
