@@ -1,0 +1,10 @@
+{
+  "name": "algorithmic-album-covers",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/app.mjs && node --check src/generator.mjs && node --check src/model.mjs && node --check src/serialize.mjs"
+  }
+}
