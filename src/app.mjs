@@ -32,12 +32,12 @@ function commit(next, record = true) {
   render();
 }
 
-function setProjectFromExternal(next, message) {
+function setProjectFromExternal(next, message, markSaved = false) {
   if (!window.confirm('Replace the current artwork with this project? You can undo this replacement.')) return;
   history.push(clone(project));
   project = normalizeProject(next);
   controls.customFont.value = '';
-  savedFingerprint = null;
+  savedFingerprint = markSaved ? projectFingerprint(project) : null;
   render();
   notify(message, 'success');
 }
@@ -99,7 +99,7 @@ function saveLocal() {
 
 function loadLocal() {
   const data = localStorage.getItem(STORAGE_KEY); if (!data) { notify('There is no saved project in this browser yet.'); return; }
-  try { setProjectFromExternal(projectFromJson(data), 'Saved project reopened.'); } catch { notify('The saved project could not be read; your current artwork is untouched.'); }
+  try { setProjectFromExternal(projectFromJson(data), 'Saved project reopened.', true); } catch { notify('The saved project could not be read; your current artwork is untouched.'); }
 }
 
 function openImport() { controls.importFile.click(); }
