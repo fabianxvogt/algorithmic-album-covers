@@ -88,13 +88,35 @@ export function normalizeProject(input) {
 }
 
 export function layoutReport(project) {
-  const dimensions = dimensionsFor(project.variant);
-  const maxWidth = dimensions.width * (project.variant === 'banner' ? 0.48 : 0.66);
-  const titleWidth = project.title.length * project.fontSize * 0.58 + Math.max(0, project.title.length - 1) * project.tracking;
-  const artistWidth = project.artist.length * project.fontSize * 0.25 + Math.max(0, project.artist.length - 1) * project.tracking * 0.35;
-  const titleOverflow = titleWidth > maxWidth;
-  const artistOverflow = artistWidth > maxWidth;
-  return { titleOverflow, artistOverflow, overflow: titleOverflow || artistOverflow, titleWidth, artistWidth, maxWidth, dimensions };
+  const layout = textLayout(project);
+  const safe = { left: layout.width * 0.055, right: layout.width * 0.945, top: layout.height * 0.055, bottom: layout.height * 0.945 };
+  const overflowLines = Object.entries(layout.lines).filter(([, bounds]) => bounds.left < safe.left || bounds.right > safe.right || bounds.top < safe.top || bounds.bottom > safe.bottom).map(([name]) => name);
+  return { titleOverflow: overflowLines.includes('title'), artistOverflow: overflowLines.includes('artist'), overflow: overflowLines.length > 0, overflowLines, titleWidth: layout.lines.title.width, artistWidth: layout.lines.artist.width, maxWidth: safe.right - safe.left, safe, dimensions: dimensionsFor(project.variant), lines: layout.lines, fontMetricsEstimated: true };
+}
+
+function estimatedTextWidth(text, size, tracking) {
+  return String(text).length * size * 0.58 + Math.max(0, String(text).length - 1) * tracking;
+}
+
+function boundsFor(text, size, tracking, x, baseline, anchor) {
+  const width = estimatedTextWidth(text, size, tracking);
+  const left = anchor === 'middle' ? x - width / 2 : anchor === 'end' ? x - width : x;
+  return { left, right: left + width, top: baseline - size * 0.78, bottom: baseline + size * 0.18, width, baseline };
+}
+
+export function textLayout(project) {
+  const { width, height } = dimensionsFor(project.variant);
+  const titleSize = clamp(project.fontSize, 30, 180) * (project.variant === 'banner' ? 0.9 : 1);
+  const artistSize = titleSize * 0.32;
+  const subSize = titleSize * 0.23;
+  const x = width * project.textX / 100;
+  const titleY = height * project.textY / 100;
+  const anchor = project.align === 'center' ? 'middle' : project.align === 'right' ? 'end' : 'start';
+  return { width, height, x, titleY, titleSize, artistSize, subSize, anchor, lines: {
+    artist: boundsFor(project.artist, artistSize, project.tracking * 0.55, x, titleY - titleSize * 1.05, anchor),
+    title: boundsFor(project.title, titleSize, project.tracking, x, titleY, anchor),
+    subtitle: boundsFor(project.subtitle, subSize, project.tracking * 0.8, x, titleY + titleSize * 0.7, anchor),
+  } };
 }
 
 export function isSupportedFont(fontFamily) {

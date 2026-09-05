@@ -1,4 +1,4 @@
-import { PALETTES, dimensionsFor, randomFrom, clamp } from './model.mjs';
+import { PALETTES, dimensionsFor, randomFrom, textLayout } from './model.mjs';
 
 function esc(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[char]));
@@ -90,12 +90,7 @@ export function createSvg(project) {
   const colors = PALETTES[project.palette]?.colors ?? PALETTES.ember.colors;
   const scene = project.system === 'topo' ? topoShapes(width, height, project, colors) : project.system === 'modular' ? modularShapes(width, height, project, colors) : orbitShapes(width, height, project, colors);
   const font = esc(project.fontFamily || 'Arial');
-  const anchor = project.align === 'center' ? 'middle' : project.align === 'right' ? 'end' : 'start';
-  const tx = width * project.textX / 100;
-  const titleY = height * project.textY / 100;
-  const titleSize = clamp(project.fontSize, 30, 180) * (project.variant === 'banner' ? .9 : 1);
-  const artistSize = titleSize * .32;
-  const subSize = titleSize * .23;
+  const { x: tx, titleY, titleSize, artistSize, subSize, anchor } = textLayout(project);
   const accentWidth = width * (.22 + project.accent * .3);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" color-interpolation="sRGB" shape-rendering="geometricPrecision" role="img" aria-label="${esc(project.artist)} — ${esc(project.title)}"><rect width="${width}" height="${height}" fill="${colors[0]}"/>${scene}<rect width="${width}" height="${height}" fill="${colors[0]}" opacity=".12"/><g fill="${colors[3]}" font-family="${font}" text-anchor="${anchor}" opacity="${project.inkOpacity}"><text x="${tx}" y="${titleY - titleSize * 1.05}" font-size="${artistSize}" letter-spacing="${project.tracking * .55}px" font-weight="700">${esc(project.artist)}</text><text x="${tx}" y="${titleY}" font-size="${titleSize}" letter-spacing="${project.tracking}px" font-weight="700">${esc(project.title)}</text><text x="${tx}" y="${titleY + titleSize * .7}" font-size="${subSize}" letter-spacing="${project.tracking * .8}px">${esc(project.subtitle)}</text></g><rect x="${tx}" y="${titleY + titleSize * .95}" width="${accentWidth}" height="${Math.max(5, width * .004)}" fill="${colors[1]}" opacity=".9"/><g fill="${colors[3]}" font-family="${font}" font-size="${Math.max(14, width * .011)}" letter-spacing="${Math.max(2, width * .002)}" opacity=".72"><text x="${width * .055}" y="${height * .94}">CF / ${dimensionsFor(project.variant).label}</text><text x="${width * .945}" y="${height * .94}" text-anchor="end">${String(project.seed).padStart(6, '0')}</text></g></svg>`;
 }

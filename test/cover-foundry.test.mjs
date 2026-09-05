@@ -29,6 +29,25 @@ test('layout report exposes overflow for long release text', () => {
   assert.ok(report.titleWidth > report.maxWidth);
 });
 
+test('layout report follows SVG anchor and position at both horizontal edges', () => {
+  for (const variant of ['square', 'banner']) {
+    const leftEdge = layoutReport({ ...createDefaultProject(), variant, textX: 96, textY: 50, align: 'left' });
+    assert.equal(leftEdge.overflow, true);
+    assert.ok(leftEdge.lines.title.right > leftEdge.safe.right);
+    const rightEdge = layoutReport({ ...createDefaultProject(), variant, textX: 4, textY: 50, align: 'right' });
+    assert.equal(rightEdge.overflow, true);
+    assert.ok(rightEdge.lines.title.left < rightEdge.safe.left);
+  }
+});
+
+test('layout report catches vertical clipping in square and banner variants', () => {
+  for (const variant of ['square', 'banner']) {
+    const report = layoutReport({ ...createDefaultProject(), variant, textY: 94 });
+    assert.equal(report.overflow, true);
+    assert.ok(report.lines.title.bottom > report.safe.bottom);
+  }
+});
+
 test('project JSON round trip preserves the exact editable recipe', () => {
   const project = normalizeProject({ ...createDefaultProject(), system: 'modular', palette: 'tide', variant: 'banner', seed: 123456, title: 'GLASS / SIGNAL', tracking: 12 });
   assert.deepEqual(projectFromJson(projectToJson(project)), project);

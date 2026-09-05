@@ -22,7 +22,8 @@ function slug(value) { return String(value || 'cover-foundry').toLowerCase().rep
 function download(blob, filename) { const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = filename; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
 function notify(message, type = 'error', duration = 6000) { clearTimeout(noticeTimer); controls.notice.textContent = message; controls.notice.className = `notice active ${type}`; if (duration) noticeTimer = setTimeout(() => { controls.notice.textContent = ''; controls.notice.className = 'notice'; }, duration); }
 function currentFont() { return controls.customFont.value.trim() || project.fontFamily; }
-function hasSavedProject() { try { return Boolean(localStorage.getItem(STORAGE_KEY)); } catch { return false; } }
+function readSavedProjectData() { try { return localStorage.getItem(STORAGE_KEY); } catch { return null; } }
+function hasSavedProject() { return Boolean(readSavedProjectData()); }
 
 function commit(next, record = true) {
   const normalized = normalizeProject({ ...project, ...next, fontFamily: next.fontFamily ?? project.fontFamily });
@@ -62,7 +63,7 @@ function renderStatus() {
   const contract = exportContract(project);
   controls.contract.textContent = `${contract.width} × ${contract.height} · ${contract.color}`;
   controls.overflowState.textContent = report.overflow ? 'overflow' : 'fits'; controls.overflowState.className = `state-chip ${report.overflow ? 'warn' : 'ok'}`;
-  controls.layoutWarning.textContent = report.overflow ? `Text exceeds the safe ${Math.round(report.maxWidth)}px title zone. Reduce scale/tracking or move the copy before export.` : '';
+  controls.layoutWarning.textContent = report.overflow ? `Estimated ${report.overflowLines.join(', ')} bounds cross the safe area. Reduce scale/tracking or move the copy before export.` : '';
   controls.layoutWarning.classList.toggle('hidden', !report.overflow);
   const customFont = controls.customFont.value.trim();
   const fontReady = !customFont || isSupportedFont(customFont) || (document.fonts?.check?.(`${project.fontSize}px "${customFont}"`) ?? false);
@@ -98,7 +99,7 @@ function saveLocal() {
 }
 
 function loadLocal() {
-  const data = localStorage.getItem(STORAGE_KEY); if (!data) { notify('There is no saved project in this browser yet.'); return; }
+  const data = readSavedProjectData(); if (!data) { notify('There is no saved project in this browser yet.'); return; }
   try { setProjectFromExternal(projectFromJson(data), 'Saved project reopened.', true); } catch { notify('The saved project could not be read; your current artwork is untouched.'); }
 }
 
