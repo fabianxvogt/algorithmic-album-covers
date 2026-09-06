@@ -50,7 +50,18 @@
   </main>
 
   <input id="import-file" type="file" accept="application/json,.json" hidden>
+  <div id="confirm-dialog" class="confirm-dialog hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-copy">
+    <div class="confirm-card">
+      <p class="section-kicker">REPLACE CURRENT ARTWORK?</p>
+      <h2 id="confirm-title">Load this project?</h2>
+      <p id="confirm-copy">Your current edits stay undoable, but the canvas will switch to the selected project.</p>
+      <div class="confirm-actions">
+        <button id="confirm-cancel" class="ghost-button">Cancel</button>
+        <button id="confirm-replace" class="primary-button">Replace artwork</button>
+      </div>
+    </div>
+  </div>
   <canvas id="export-canvas" hidden></canvas>
-  <script type="module" src="src/app.mjs"></script>
+  <script type="module" src="src/app.mjs?v=modal-fix-20260906"></script>
 </body>
 </html>
