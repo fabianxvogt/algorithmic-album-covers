@@ -30,8 +30,9 @@
 - Classification: INCREMENTAL (empirical correctness and runtime checks; no novelty claim).
 - State: reviewed source published; browser and human gates remain open.
 - Source: repository target `fabianxvogt/algorithmic-album-covers`; executable source `feabf62d997d11dedaaf06daa5f383abd9db5545` is independently accepted and published on `main`.
-- Try it: GitHub source is public; no Cover Foundry Sites preview is bound in the existing Sites inventory. Local `index.html` remains the verified fallback.
+- Try it: public Sites preview at `https://cover-foundry.fabian523417.chatgpt.site` (version 1 from the reviewed static distribution); local `index.html` remains the verified fallback.
 - Compute: browser-only, bounded vector generation; no server or paid API.
 - Persistence/export: version 1 JSON, localStorage, SVG and PNG downloads.
 - Human legibility tests: unobserved; no real testers were available during this lane.
 - Browser gates for `feabf62`: keyboard focus, file-picker import, and responsive/human recheck are pending; do not claim full-v1 acceptance.
+- Site binding: `.openai/hosting.json` uses Site project `appgprj_6a9d3e7082908191948caf2e8c8a676e` with static output `dist`.

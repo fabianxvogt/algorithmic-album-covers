@@ -14,4 +14,4 @@
 | Desktop Chromium and narrow 390px layout | Prior desktop and 390px journey passed; published-source recheck remains pending | PARTIAL |
 | Four-of-five legibility and three matching-variant tests | No real human testers available | UNOBSERVED |
 
-Reference runtime: desktop Chromium, local static server, prior source QA on 2026-09-06. Published source `feabf62` still needs keyboard/file-picker/browser recheck. Human-review checks remain explicitly unobserved rather than inferred from automated checks.
+Reference runtime: desktop Chromium, local static server, and public Sites version 1 on 2026-09-06. Published source `feabf62` still needs keyboard/file-picker/browser recheck. Human-review checks remain explicitly unobserved rather than inferred from automated checks.
