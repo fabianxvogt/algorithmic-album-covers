@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#111016">
   <title>Cover Foundry — Algorithmic Album Covers</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=modal-focus-20260906">
 </head>
 <body>
   <header class="topbar">
@@ -50,7 +50,7 @@
   </main>
 
   <input id="import-file" type="file" accept="application/json,.json" hidden>
-  <div id="confirm-dialog" class="confirm-dialog hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-copy">
+  <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-copy">
     <div class="confirm-card">
       <p class="section-kicker">REPLACE CURRENT ARTWORK?</p>
       <h2 id="confirm-title">Load this project?</h2>
@@ -60,8 +60,8 @@
         <button id="confirm-replace" class="primary-button">Replace artwork</button>
       </div>
     </div>
-  </div>
+  </dialog>
   <canvas id="export-canvas" hidden></canvas>
-  <script type="module" src="src/app.mjs?v=modal-fix-20260906"></script>
+  <script type="module" src="src/app.mjs?v=modal-focus-20260906"></script>
 </body>
 </html>

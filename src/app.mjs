@@ -12,10 +12,11 @@ let previewUrl = null;
 let variationUrls = [];
 let noticeTimer = null;
 let pendingReplacement = null;
+let replacementReturnFocus = null;
 
 const $ = (id) => document.getElementById(id);
 const controls = {
-  name: $('project-name'), artist: $('artist'), title: $('title'), subtitle: $('subtitle'), palette: $('palette'), fontFamily: $('font-family'), customFont: $('font-custom'), fontSize: $('font-size'), tracking: $('tracking'), textX: $('text-x'), textY: $('text-y'), seed: $('seed'), preview: $('preview-image'), artboard: $('artboard'), notice: $('notice'), historyButton: $('undo'), savedState: $('saved-state'), dirty: $('dirty-label'), fontState: $('font-state'), fontWarning: $('font-warning'), overflowState: $('overflow-state'), layoutWarning: $('layout-warning'), contract: $('contract'), seedOutput: $('seed-output'), meta: $('preview-meta'), variationGrid: $('variation-grid'), importFile: $('import-file'), saveButton: $('save-project'), loadSaved: $('load-saved'), confirmDialog: $('confirm-dialog'), confirmCancel: $('confirm-cancel'), confirmReplace: $('confirm-replace')
+  name: $('project-name'), artist: $('artist'), title: $('title'), subtitle: $('subtitle'), palette: $('palette'), fontFamily: $('font-family'), customFont: $('font-custom'), fontSize: $('font-size'), tracking: $('tracking'), textX: $('text-x'), textY: $('text-y'), seed: $('seed'), preview: $('preview-image'), artboard: $('artboard'), notice: $('notice'), historyButton: $('undo'), savedState: $('saved-state'), dirty: $('dirty-label'), fontState: $('font-state'), fontWarning: $('font-warning'), overflowState: $('overflow-state'), layoutWarning: $('layout-warning'), contract: $('contract'), seedOutput: $('seed-output'), meta: $('preview-meta'), variationGrid: $('variation-grid'), importFile: $('import-file'), openProject: $('open-project'), newProject: $('new-project'), saveButton: $('save-project'), loadSaved: $('load-saved'), confirmDialog: $('confirm-dialog'), confirmCancel: $('confirm-cancel'), confirmReplace: $('confirm-replace')
 };
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
@@ -43,26 +44,36 @@ function applyExternalProject(next, message, markSaved = false) {
   notify(message, 'success');
 }
 
-function requestProjectReplacement(next, message, markSaved = false) {
+function requestProjectReplacement(next, message, markSaved = false, returnFocus = document.activeElement) {
   pendingReplacement = { next, message, markSaved };
-  controls.confirmDialog.classList.remove('hidden');
+  replacementReturnFocus = returnFocus instanceof HTMLElement ? returnFocus : controls.loadSaved;
+  controls.confirmDialog.showModal();
   controls.confirmReplace.focus();
 }
 
-function cancelProjectReplacement() {
+function restoreReplacementFocus(target) {
+  const canFocus = target?.isConnected && !target.disabled && target.getClientRects().length > 0;
+  (canFocus ? target : controls.name).focus();
+}
+
+function closeProjectReplacement() {
+  const returnFocus = replacementReturnFocus;
   pendingReplacement = null;
-  controls.confirmDialog.classList.add('hidden');
+  replacementReturnFocus = null;
+  controls.confirmDialog.close();
+  return returnFocus;
+}
+
+function cancelProjectReplacement() {
+  restoreReplacementFocus(closeProjectReplacement());
 }
 
 function confirmProjectReplacement() {
   if (!pendingReplacement) return;
   const replacement = pendingReplacement;
-  cancelProjectReplacement();
+  const returnFocus = closeProjectReplacement();
   applyExternalProject(replacement.next, replacement.message, replacement.markSaved);
-}
-
-function handleReplacementKeydown(event) {
-  if (event.key === 'Escape' && pendingReplacement) cancelProjectReplacement();
+  restoreReplacementFocus(returnFocus);
 }
 
 function renderSystemTabs() {
@@ -122,7 +133,7 @@ function saveLocal() {
 
 function loadLocal() {
   const data = readSavedProjectData(); if (!data) { notify('There is no saved project in this browser yet.'); return; }
-  try { requestProjectReplacement(projectFromJson(data), 'Saved project reopened.', true); } catch { notify('The saved project could not be read; your current artwork is untouched.'); }
+  try { requestProjectReplacement(projectFromJson(data), 'Saved project reopened.', true, controls.loadSaved); } catch { notify('The saved project could not be read; your current artwork is untouched.'); }
 }
 
 function openImport() { controls.importFile.click(); }
@@ -130,11 +141,11 @@ function handleImport(event) {
   const file = event.target.files?.[0]; event.target.value = ''; if (!file) return;
   if (file.size > MAX_PROJECT_BYTES) { notify('This project file is larger than 2 MB and was not opened.'); return; }
   if (file.type && file.type !== 'application/json' && !file.name.toLowerCase().endsWith('.json')) { notify('Please choose a Cover Foundry JSON project file.'); return; }
-  const reader = new FileReader(); reader.onload = () => { try { const imported = projectFromJson(String(reader.result)); requestProjectReplacement(imported, 'Project imported.'); } catch (error) { notify(`${error.message} Your current artwork is untouched.`); } }; reader.onerror = () => notify('The file could not be read. Your current artwork is untouched.'); reader.readAsText(file);
+  const reader = new FileReader(); reader.onload = () => { try { const imported = projectFromJson(String(reader.result)); requestProjectReplacement(imported, 'Project imported.', false, controls.openProject); } catch (error) { notify(`${error.message} Your current artwork is untouched.`); } }; reader.onerror = () => notify('The file could not be read. Your current artwork is untouched.'); reader.readAsText(file);
 }
 
 function newProject() {
-  const fresh = createDefaultProject(); Object.assign(fresh, { name: 'Untitled release', artist: 'YOUR ARTIST', title: 'YOUR TITLE', subtitle: 'NEW RELEASE', seed: Math.floor(Math.random() * 900000) + 100000 }); requestProjectReplacement(fresh, 'New project ready — make it yours.');
+  const fresh = createDefaultProject(); Object.assign(fresh, { name: 'Untitled release', artist: 'YOUR ARTIST', title: 'YOUR TITLE', subtitle: 'NEW RELEASE', seed: Math.floor(Math.random() * 900000) + 100000 }); requestProjectReplacement(fresh, 'New project ready — make it yours.', false, controls.newProject);
 }
 
 async function exportSvg() { const filename = `${slug(project.name)}-${project.variant}.svg`; download(svgBlob(project), filename); notify(`SVG exported at ${dimensionsFor(project.variant).width} × ${dimensionsFor(project.variant).height}.`, 'success', 3500); }
@@ -150,8 +161,7 @@ document.querySelectorAll('[data-variant]').forEach((button) => button.addEventL
 $('random-seed').addEventListener('click', () => commit({ seed: Math.floor(Math.random() * 90000000) }));
 $('refresh-variations').addEventListener('click', () => { renderVariations(); notify('Fresh nearby variations generated from this recipe.', 'success', 2500); });
 controls.historyButton.addEventListener('click', () => { const previous = history.pop(); if (!previous) return; project = normalizeProject(previous); render(); notify('Undid the last edit.', 'success', 2000); });
-controls.saveButton.addEventListener('click', saveLocal); controls.loadSaved.addEventListener('click', loadLocal); controls.confirmCancel.addEventListener('click', cancelProjectReplacement); controls.confirmReplace.addEventListener('click', confirmProjectReplacement); $('new-project').addEventListener('click', newProject); $('open-project').addEventListener('click', openImport); $('download-project').addEventListener('click', () => download(new Blob([projectToJson(project)], { type: 'application/json' }), `${slug(project.name)}.cover-foundry.json`)); controls.importFile.addEventListener('change', handleImport); $('export-svg').addEventListener('click', exportSvg); $('export-png').addEventListener('click', exportPng);
-document.addEventListener('keydown', handleReplacementKeydown);
+controls.saveButton.addEventListener('click', saveLocal); controls.loadSaved.addEventListener('click', loadLocal); controls.confirmCancel.addEventListener('click', cancelProjectReplacement); controls.confirmReplace.addEventListener('click', confirmProjectReplacement); controls.confirmDialog.addEventListener('cancel', (event) => { event.preventDefault(); cancelProjectReplacement(); }); $('new-project').addEventListener('click', newProject); $('open-project').addEventListener('click', openImport); $('download-project').addEventListener('click', () => download(new Blob([projectToJson(project)], { type: 'application/json' }), `${slug(project.name)}.cover-foundry.json`)); controls.importFile.addEventListener('change', handleImport); $('export-svg').addEventListener('click', exportSvg); $('export-png').addEventListener('click', exportPng);
 
 window.coverFoundry = { getProject: () => clone(project), getSvg: () => createSvg(project), loadProject: (next) => { project = normalizeProject(next); render(); } };
 render();
