@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111016">
+  <title>Cover Foundry — Algorithmic Album Covers</title>
+  <link rel="stylesheet" href="styles.css?v=modal-focus-20260906">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Cover Foundry home"><span class="brand-mark">✳</span><span>Cover Foundry</span></a>
+    <div class="top-actions"><span class="privacy"><span class="dot"></span> local-first</span><button id="open-project" class="ghost-button">Open JSON</button><button id="new-project" class="ghost-button">New project</button><button id="save-project" class="primary-button">Save project</button></div>
+  </header>
+
+  <main class="app-shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div><p class="eyebrow">ALGORITHMIC RELEASE ARTWORK / V1</p><h1 id="page-title">Make a cover with a point of view.</h1><p class="intro-copy">A small, deterministic studio for turning a seed, a palette, and a few words into a release identity you can keep editing.</p></div>
+      <div class="intro-note"><span class="step-number">01</span><p><strong>Start with the example.</strong><br>Change any control to make it yours. Your work never leaves this browser.</p></div>
+    </section>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <section class="workspace">
+      <aside class="controls" aria-label="Cover controls">
+        <div class="panel-section system-section"><div class="section-head"><span class="section-kicker">01 / COMPOSITION</span><span class="help" title="Each system is a bounded, seed-driven vector composition.">?</span></div><div id="system-tabs" class="system-tabs"></div></div>
+
+        <div class="panel-section"><div class="section-head"><span class="section-kicker">02 / RELEASE TEXT</span><span class="saved-state" id="saved-state">Example loaded</span></div><label>Project name<input id="project-name" type="text" maxlength="80"></label><label>Artist<input id="artist" type="text" maxlength="80"></label><label>Release title<input id="title" type="text" maxlength="80"></label><label>Small line<input id="subtitle" type="text" maxlength="80"></label></div>
+
+        <div class="panel-section"><div class="section-head"><span class="section-kicker">03 / IDENTITY</span><span id="font-state" class="state-chip ok">font ready</span></div><label>Palette<select id="palette"></select></label><label>Typeface<select id="font-family"></select></label><label>Or enter a local family<input id="font-custom" type="text" placeholder="Optional installed font"></label><div id="font-warning" class="inline-warning hidden"></div></div>
+
+        <div class="panel-section"><div class="section-head"><span class="section-kicker">04 / LAYOUT</span><span id="overflow-state" class="state-chip ok">fits</span></div><div class="range-row"><label>Title scale <output id="font-size-output"></output><input id="font-size" type="range" min="30" max="180" step="1"></label><label>Tracking <output id="tracking-output"></output><input id="tracking" type="range" min="-4" max="32" step="1"></label></div><div class="range-row"><label>Text X <output id="text-x-output"></output><input id="text-x" type="range" min="4" max="96" step="1"></label><label>Text Y <output id="text-y-output"></output><input id="text-y" type="range" min="12" max="94" step="1"></label></div><div class="segmented" role="group" aria-label="Text alignment"><button data-align="left">Left</button><button data-align="center">Center</button><button data-align="right">Right</button></div><p class="microcopy">Bounds are estimated from the selected font; browser rasterization can vary.</p><div id="layout-warning" class="inline-warning hidden"></div></div>
+
+        <div class="panel-section"><div class="section-head"><span class="section-kicker">05 / VARIANT</span><span id="contract" class="contract">1400 × 1400 · sRGB</span></div><div class="variant-tabs"><button data-variant="square">Square <span>1400</span></button><button data-variant="banner">Banner <span>2400 × 960</span></button></div><p class="microcopy">The preview and both export formats use this exact dimension contract.</p></div>
+
+        <div class="panel-section seed-section"><div class="section-head"><span class="section-kicker">06 / RECIPE</span><span class="seed-readout">SEED <output id="seed-output"></output></span></div><div class="seed-row"><input id="seed" type="number" min="0" max="99999999" step="1"><button id="random-seed" class="icon-button" title="Randomize seed" aria-label="Randomize seed">↗</button></div><p class="microcopy">Same project file + same seed = same composition.</p></div>
+
+        <div class="panel-actions"><button id="undo" class="ghost-button" disabled>↶ Undo</button><button id="load-saved" class="ghost-button">Reopen saved</button></div>
+      </aside>
+
+      <section class="preview-column" aria-label="Artwork preview">
+        <div class="preview-toolbar"><div><span class="live-dot"></span><span id="preview-label">Live preview</span></div><div class="toolbar-right"><span id="dirty-label" class="dirty-label">Unsaved changes</span><button id="download-project" class="text-button">↓ Project JSON</button></div></div>
+        <div class="artboard-wrap"><div class="artboard" id="artboard"><img id="preview-image" alt="Generated album cover preview"><div class="artboard-corner top-left"></div><div class="artboard-corner bottom-right"></div></div></div>
+        <div class="preview-footer"><div id="preview-meta">ORBIT FIELD / EMBER / 000000</div><div class="export-actions"><button id="export-svg" class="secondary-button">Export SVG</button><button id="export-png" class="primary-button">Export PNG</button></div></div>
+        <div class="variations"><div class="variations-head"><div><p class="section-kicker">COMPARE VARIATIONS</p><p class="microcopy">Three nearby recipes, same identity. Choose one to make it yours.</p></div><button id="refresh-variations" class="text-button">↻ refresh</button></div><div id="variation-grid" class="variation-grid"></div></div>
+      </section>
+    </section>
+
+    <section class="bottom-strip"><div><span class="strip-icon">⌘</span><div><strong>Portable by design</strong><p>Download a project JSON to reopen or move your release work.</p></div></div><div><span class="strip-icon">◌</span><div><strong>Made for editing</strong><p>Original vector geometry, system fonts, and no account required.</p></div></div><div><span class="strip-icon">↗</span><div><strong>Ready to share</strong><p>SVG for scale, PNG for platforms. Export stays on your device.</p></div></div></section>
+  </main>
+
+  <input id="import-file" type="file" accept="application/json,.json" hidden>
+  <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-copy">
+    <div class="confirm-card">
+      <p class="section-kicker">REPLACE CURRENT ARTWORK?</p>
+      <h2 id="confirm-title">Load this project?</h2>
+      <p id="confirm-copy">Your current edits stay undoable, but the canvas will switch to the selected project.</p>
+      <div class="confirm-actions">
+        <button id="confirm-cancel" class="ghost-button">Cancel</button>
+        <button id="confirm-replace" class="primary-button">Replace artwork</button>
+      </div>
+    </div>
+  </dialog>
+  <canvas id="export-canvas" hidden></canvas>
+  <script type="module" src="src/app.mjs?v=modal-focus-20260906"></script>
+</body>
+</html>
