@@ -27,10 +27,11 @@
 
 ## Release record
 
-- State: released candidate / source review pending.
 - Classification: INCREMENTAL (empirical correctness and runtime checks; no novelty claim).
-- Source: repository target `fabianxvogt/algorithmic-album-covers`; exact commit recorded at release.
-- Try it: static deployment candidate; local `index.html` is the verified fallback.
+- State: reviewed source published; browser and human gates remain open.
+- Source: repository target `fabianxvogt/algorithmic-album-covers`; executable source `feabf62d997d11dedaaf06daa5f383abd9db5545` is independently accepted and published on `main`.
+- Try it: GitHub source is public; no Cover Foundry Sites preview is bound in the existing Sites inventory. Local `index.html` remains the verified fallback.
 - Compute: browser-only, bounded vector generation; no server or paid API.
 - Persistence/export: version 1 JSON, localStorage, SVG and PNG downloads.
 - Human legibility tests: unobserved; no real testers were available during this lane.
+- Browser gates for `feabf62`: keyboard focus, file-picker import, and responsive/human recheck are pending; do not claim full-v1 acceptance.
