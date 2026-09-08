@@ -1,3 +1,13 @@
+<!-- portfolio
+{
+  "title": "Cover Foundry",
+  "topic": "Creative tools/Generative art",
+  "type": "product",
+  "description": "Compose deterministic album artwork and export your own cover.",
+  "demo": "https://cover-foundry.fabian523417.chatgpt.site"
+}
+-->
+
 # Cover Foundry
 
 Cover Foundry is a browser-first, deterministic album artwork editor for musicians and independent releases. Choose one of three original composition systems, tune the seed and palette, set release typography, compare variations, and export square cover or banner artwork as SVG or PNG.
